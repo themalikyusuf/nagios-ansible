@@ -1,0 +1,15 @@
+---
+- name: Download the source code for a release of NRPE and extract it
+  shell: cd ~; curl -L -O http://downloads.sourceforge.net/project/nagios/nrpe-2.x/nrpe-{{nrpe_version}}/nrpe-{{nrpe_version}}.tar.gz; tar xvf nrpe-{{nrpe_version}}.tar.gz
+
+- name: Configure NRPE
+  shell: cd ~/nrpe-{{nrpe_version}}; ./configure --enable-command-args --with-nagios-user=nagios --with-nagios-group=nagios --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
+
+- name: Compile NRPE
+  shell: cd ~/nrpe-{{nrpe_version}}; make all; make install; make install-xinetd; make install-daemon-config
+
+- name: modify only_from
+  lineinfile: dest=/etc/xinetd.d/nrpe regexp="^only_from*" line="only_from = 127.0.0.1 {{vm_ip}}" state=absent
+
+- name: Restart xinetd
+  service: name=xinetd state=restarted

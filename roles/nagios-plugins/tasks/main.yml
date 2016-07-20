@@ -1,0 +1,9 @@
+---
+- name: Download the source code for a release of Nagios-plugins and extract it
+  shell: cd ~; curl -L -O http://nagios-plugins.org/download/nagios-plugins-{{plugin_version}}.tar.gz; tar xvf nagios-plugins-{{plugin_version}}.tar.gz
+
+- name: Configure Nagios-plugins
+  shell: cd ~/nagios-plugins-{{plugin_version}}; ./configure --with-nagios-user=nagios --with-nagios-group=nagios --with-openssl
+
+- name: Compile Nagios-plugins
+  shell: cd ~/nagios-plugins-{{plugin_version}}; make; make install

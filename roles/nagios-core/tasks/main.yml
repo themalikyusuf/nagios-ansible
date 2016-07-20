@@ -1,0 +1,20 @@
+---
+- name: Check if Nagios source code file exists
+
+- name: Download the source code for a release of Nagios Core and extract it
+  shell: cd ~; curl -L -O https://assets.nagios.com/downloads/nagioscore/releases/nagios-{{version}}.tar.gz; tar xvf nagios-{{version}}.tar.gz
+
+- name: Configure Nagios
+  shell: cd ~/nagios-{{version}}; ./configure --with-nagios-group=nagios --with-command-group=nagcmd
+
+- name: Compile Nagios
+  shell: cd ~/nagios-{{version}}; make clean; make all; make install
+
+- name:  Install Nagios, init scripts, and sample configuration files
+  shell: "{{item}}"
+  with_items:
+  - cd ~/nagios-{{version}}; make install-commandmode; make install-init; make install-config
+  - cd ~/nagios-{{version}}; /usr/bin/install -c -m 644 sample-config/httpd.conf /etc/apache2/sites-available/nagios.conf
+
+- name: Add the web server user
+  shell: cd ~/nagios-{{version}}; usermod -G nagcmd www-data
