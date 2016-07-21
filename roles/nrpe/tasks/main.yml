@@ -1,15 +1,36 @@
 ---
 - name: Download the source code for a release of NRPE and extract it
-  shell: cd ~; curl -L -O http://downloads.sourceforge.net/project/nagios/nrpe-2.x/nrpe-{{nrpe_version}}/nrpe-{{nrpe_version}}.tar.gz; tar xvf nrpe-{{nrpe_version}}.tar.gz
+  unarchive: src=http://downloads.sourceforge.net/project/nagios/nrpe-2.x/nrpe-{{ nrpe_version }}/nrpe-{{ nrpe_version }}.tar.gz dest={{ ansible_env.PWD }} copy=no
+  tags:
+    - dwld_nrpe
 
 - name: Configure NRPE
-  shell: cd ~/nrpe-{{nrpe_version}}; ./configure --enable-command-args --with-nagios-user=nagios --with-nagios-group=nagios --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
+  command: ./configure --enable-command-args --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
+  args:
+    chdir: "{{ ansible_env.PWD }}/nrpe-{{ nrpe_version }}"
+  tags:
+    - cfg_nrpe
 
 - name: Compile NRPE
-  shell: cd ~/nrpe-{{nrpe_version}}; make all; make install; make install-xinetd; make install-daemon-config
+  command: "{{ item }}"
+  args:
+    chdir: "{{ ansible_env.PWD }}/nrpe-{{ nrpe_version }}"
+  with_items:
+    - make all
+    - make install
+    - make install-xinetd
+    - make install-daemon-config
+  tags:
+   - cfg_nrpe
 
-- name: modify only_from
-  lineinfile: dest=/etc/xinetd.d/nrpe regexp="^only_from*" line="only_from = 127.0.0.1 {{vm_ip}}" state=absent
+- name: Modify extended Internet daemon to allow our IP
+  lineinfile: 
+    dest: /etc/xinetd.d/nrpe 
+    regexp: "^only_from*" 
+    line: "only_from = 127.0.0.1 {{ vm_ip }}" 
+    state: absent
+  tags:
+    - xinetd
 
 - name: Restart xinetd
   service: name=xinetd state=restarted

@@ -1,20 +1,40 @@
 ---
-- name: Check if Nagios source code file exists
-
 - name: Download the source code for a release of Nagios Core and extract it
-  shell: cd ~; curl -L -O https://assets.nagios.com/downloads/nagioscore/releases/nagios-{{version}}.tar.gz; tar xvf nagios-{{version}}.tar.gz
+  unarchive: src=https://assets.nagios.com/downloads/nagioscore/releases/nagios-{{ nagios_version }}.tar.gz dest={{ ansible_env.PWD }} copy=no
+  tags:
+    - dwld_nagios
 
 - name: Configure Nagios
-  shell: cd ~/nagios-{{version}}; ./configure --with-nagios-group=nagios --with-command-group=nagcmd
+  command: ./configure --with-nagios-group={{ user }} --with-command-group={{ group }}
+  args:
+    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
+  tags:
+    - cfg_nagios
 
 - name: Compile Nagios
-  shell: cd ~/nagios-{{version}}; make clean; make all; make install
-
-- name:  Install Nagios, init scripts, and sample configuration files
-  shell: "{{item}}"
+  command: "{{ item }}"
+  args:
+    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
   with_items:
-  - cd ~/nagios-{{version}}; make install-commandmode; make install-init; make install-config
-  - cd ~/nagios-{{version}}; /usr/bin/install -c -m 644 sample-config/httpd.conf /etc/apache2/sites-available/nagios.conf
+    - make clean
+    - make all
+    - make install
+    - make install-commandmode
+    - make install-init
+    - make install-config
+  tags:
+   - cfg_nagios
 
-- name: Add the web server user
-  shell: cd ~/nagios-{{version}}; usermod -G nagcmd www-data
+- name:  Install Nagios and init scripts
+  command: /usr/bin/install -c -m 644 sample-config/httpd.conf /etc/apache2/sites-available/nagios.conf
+  args:
+    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
+  tags:
+    - nagios_init
+
+- name:  Add the web server user to the group
+  command: usermod -G {{ group }} www-data
+  args:
+    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
+  tags:
+    - nagios_init

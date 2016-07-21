@@ -1,9 +1,22 @@
 ---
 - name: Download the source code for a release of Nagios-plugins and extract it
-  shell: cd ~; curl -L -O http://nagios-plugins.org/download/nagios-plugins-{{plugin_version}}.tar.gz; tar xvf nagios-plugins-{{plugin_version}}.tar.gz
+  unarchive: src=http://nagios-plugins.org/download/nagios-plugins-{{ plugin_version }}.tar.gz dest={{ ansible_env.PWD }} copy=no
+  tags:
+    - dwld_nagios_plugin
 
 - name: Configure Nagios-plugins
-  shell: cd ~/nagios-plugins-{{plugin_version}}; ./configure --with-nagios-user=nagios --with-nagios-group=nagios --with-openssl
+  command: ./configure --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-openssl
+  args:
+    chdir: "{{ ansible_env.PWD }}/nagios-plugins-{{ plugin_version }}"
+  tags:
+    - cfg_nagios_plugin
 
 - name: Compile Nagios-plugins
-  shell: cd ~/nagios-plugins-{{plugin_version}}; make; make install
+  command: "{{ item }}"
+  args:
+    chdir: "{{ ansible_env.PWD }}/nagios-plugins-{{ plugin_version }}"
+  with_items:
+    - make
+    - make install
+  tags:
+   - cfg_nagios_plugin

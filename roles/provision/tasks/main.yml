@@ -1,0 +1,42 @@
+---
+- name: Create Nagios Group
+  group: name={{ group }} state=present
+  tags:
+    - user_group
+
+- name: Create Nagios User and add to Nagios Group
+  user: name={{ user }} group={{ group }}
+  tags:
+    - user_group
+
+- name: Check if build dependencies are installed
+  ignore_errors: true
+  register: build_dependencies_installed
+  command: bash -c "dpkg --get-selections | grep {{ item }}"
+  with_items:
+    - build-essential
+    - libgd2-xpm-dev
+    - openssl
+    - libssl-dev
+    - xinetd
+    - apache2-utils
+    - unzip
+    - python-passlib
+  tags:
+    - build_setup
+
+- name: Update repo cache and install build dependencies
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - build-essential
+    - libgd2-xpm-dev
+    - openssl
+    - libssl-dev
+    - xinetd
+    - apache2-utils
+    - unzip
+    - python-passlib
+  when: build_dependencies_installed | failed
+  tags:
+    - build_setup
+

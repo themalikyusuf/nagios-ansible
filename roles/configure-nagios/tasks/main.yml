@@ -1,14 +1,25 @@
 ---
-- name: Organize Nagios Configuration
-  lineinfile: dest=/usr/local/nagios/etc/nagios.cfg regexp="^cfg_dir=/usr/local/nagios/etc/servers" insertafter='^#cfg_dir=/usr/local/nagios/etc/servers' line="cfg_dir=/usr/local/nagios/etc/servers" state=present
+- name: Uncomment Nagios server config directory line
+  lineinfile: 
+    dest: /usr/local/nagios/etc/nagios.cfg 
+    regexp: "^cfg_dir=/usr/local/nagios/etc/servers" 
+    insertafter: "^#cfg_dir=/usr/local/nagios/etc/servers" 
+    line: "cfg_dir=/usr/local/nagios/etc/servers" 
+    state: present
+  tags:
+    - uncomment
 
-- name: directory that will store the configuration file for each server that you will monitor
+- name: Create directory to store config file for each server
   file: path=/usr/local/nagios/etc/servers state=directory mode=0755
+  tags:
+    - create_dir
 
-- name: find and replace email
-  replace: dest=/usr/local/nagios/etc/objects/contacts.cfg regexp='nagios@localhost' replace='{{user_email}}'
+- name: Find and replace email
+  replace: dest=/usr/local/nagios/etc/objects/contacts.cfg regexp="nagios@localhost" replace="{{ user_email }}"
+  tags:
+    - replace_email
 
-- name: insert/update eof
+- name: Add check_nrpe command to Nagios config
   blockinfile:
     dest: /usr/local/nagios/etc/objects/commands.cfg
     insertafter: EOF
@@ -17,31 +28,36 @@
               command_name check_nrpe
               command_line $USER1$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$
       }
+  tags:
+    - add_command
 
-- name: Enable the Apache rewrite and cgi modules
-  shell: a2enmod rewrite; a2enmod cgi
+- name: Enable the Apache Rewrite and CGI modules
+  shell: "{{ item }}"
+  with_items:
+    - a2enmod rewrite
+    - a2enmod cgi
+  tags:
+    - a2enmod
 
-- name: Check if python-passlib is installed
-  shell: dpkg --get-selections | grep python-passlib
-  register: python_passlib_installed
-  ignore_errors: true
+- name: Create admin username and password for authentication
+  htpasswd: 
+    path: /usr/local/nagios/etc/htpasswd.users
+    name: "{{ username }}"
+    password: "{{ password }}"
+    crypt_scheme: md5_crypt
+  tags:
+    - htpasswd
 
-- name: Install python-passlib for htpasswd
-  apt: name=python-passlib state=present force=yes
-  when: python_passlib_installed|failed
+- name: Create symbolic link of nagios.conf to sites-enabled directory and allow nagios to start automatically
+  file: src={{ item.src }} dest={{ item.dest }} state=link force=yes
+  with_items:
+    - { src: '/etc/apache2/sites-available/nagios.conf', dest: '/etc/apache2/sites-enabled/nagios.conf' }
+    - { src: '/etc/init.d/nagios', dest: '/etc/rcS.d/S99nagios' }
+  tags:
+    - symlink
 
-- name: add username and password
-  htpasswd: path=/usr/local/nagios/etc/htpasswd.users name={{username}} password={{password}} crypt_scheme=md5_crypt
-
-- name: create symlink
-  shell: ln -s /etc/apache2/sites-available/nagios.conf /etc/apache2/sites-enabled/
-  ignore_errors: true
-
-- name: start nagios
-  service: name=nagios state=started
-
-- name: restart apache2
-  service: name=apache2 state=restarted
-
-- name: last symlink
-  file: src=/etc/init.d/nagios dest=/etc/rcS.d/S99nagios state=link
+- name: Restart all services
+  service: name={{ item }} state=restarted
+  with_items:
+    - nagios
+    - apache2
