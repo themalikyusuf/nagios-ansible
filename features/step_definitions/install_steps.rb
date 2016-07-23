@@ -12,7 +12,7 @@ Then(/^it should be successful$/) do
 end
 
 And(/^the created user should exists$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{AWSPUBDNS} 'cut -d: -f1 /etc/passwd | grep nagios'"
+  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'cut -d: -f1 /etc/passwd | grep nagios'"
   output, error, status = Open3.capture3 "#{cmd}"
   expect(status.success?).to eq(true)
   expect(output).to match("nagios")
@@ -31,7 +31,7 @@ When(/^I Download Nagios source code$/) do
 end
 
 And(/^the source code should be extracted$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{AWSPUBDNS} 'ls | grep 'nagios-4.1.1''"
+  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'ls | grep 'nagios-4.1.1''"
   output, error, status = Open3.capture3 "#{cmd}"
   expect(status.success?).to eq(true)
   expect(output).to eq("nagios-4.1.1\n")
@@ -50,7 +50,7 @@ When(/^I Install Nagios and init scripts$/) do
 end
 
 And(/^the web server user should exists$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{AWSPUBDNS} 'cut -d: -f1 /etc/passwd | grep www-data'"
+  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'cut -d: -f1 /etc/passwd | grep www-data'"
   output, error, status = Open3.capture3 "#{cmd}"
   expect(status.success?).to eq(true)
   expect(output).to match("www-data")
@@ -63,7 +63,7 @@ When(/^I Download Nagios Plugin source code$/) do
 end
 
 And(/^the Nagios Plugin source code should be extracted$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{AWSPUBDNS} 'ls | grep 'nagios-plugins-2.1.1''"
+  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'ls | grep 'nagios-plugins-2.1.1''"
   output, error, status = Open3.capture3 "#{cmd}"
   expect(status.success?).to eq(true)
   expect(output).to eq("nagios-plugins-2.1.1\n")
@@ -82,7 +82,7 @@ When(/^I Download NRPE source code$/) do
 end
 
 And(/^the NRPE source code should be extracted$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{AWSPUBDNS} 'ls | grep 'nrpe-2.15''"
+  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'ls | grep 'nrpe-2.15''"
   output, error, status = Open3.capture3 "#{cmd}"
   expect(status.success?).to eq(true)
   expect(output).to eq("nrpe-2.15\n")
@@ -103,7 +103,7 @@ end
 And(/^([^"]*) should be running$/) do |pkg|
   case pkg
   when 'nagios', 'apache2', 'xinetd'
-    output, error, status = Open3.capture3 "ssh -i '#{PATHTOKEY}' #{AWSPUBDNS} 'sudo service #{pkg} status'"
+    output, error, status = Open3.capture3 "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'sudo service #{pkg} status'"
     expect(status.success?).to eq(true)
 
     if pkg == 'xinetd'
@@ -132,7 +132,7 @@ When(/^I create directory to store config file for each server$/) do
 end
 
 And(/^the directory should exists$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{AWSPUBDNS} 'ls /usr/local/nagios/etc/ | grep servers'"
+  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'ls /usr/local/nagios/etc/ | grep servers'"
   output, error, status = Open3.capture3 "#{cmd}"
   expect(status.success?).to eq(true)
   expect(output).to match("servers")
