@@ -1,5 +1,8 @@
 ---
 #### This task file creates a user, two groups, updates apt cache and installs build dependencies
+- name: Update apt cache
+  apt: update_cache=yes
+
 - name: Create nagcmd and nagios Groups
   group: name="{{ item }}" state=present
   with_items:
@@ -30,7 +33,7 @@
     - build_setup
 
 - name: Update repo cache and install build dependencies
-  apt: name={{ item }} state=latest update_cache=yes
+  apt: name={{ item }} state=present force=yes
   with_items:
     - build-essential
     - libgd2-xpm-dev
