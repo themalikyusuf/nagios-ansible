@@ -1,8 +1,7 @@
 Feature: Configure Nagios
 
-
   Scenario: Setup and Create User, Group and Add User to Group
-    When I create a user and group
+    When I create a user and groups
     Then it should be successful
     And the created user should exists
 
@@ -78,5 +77,7 @@ Feature: Configure Nagios
     And nagios should be running
     And apache2 should be running
 
-
-
+  Scenario: Create a new config file for each host
+    When I create a new config file for each host
+    Then it should be successful
+    And nagios should be running
