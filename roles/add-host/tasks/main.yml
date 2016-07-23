@@ -1,0 +1,16 @@
+---
+### This task file configures and defines the remote vm on this monitoring server
+- name: Create a new config file for each host
+  file: path=/usr/local/nagios/etc/servers/{{ remote_host_name }}.cfg state=touch
+  tags:
+    - create_host_config
+
+- name: Define remote host in server config file
+  template: src=remote-host.j2 dest=/usr/local/nagios/etc/servers/{{ remote_host_name }}.cfg
+  tags:
+    - create_host_config
+
+- name: Reload Nagios
+  service: name=nagios state=reloaded
+  tags:
+    - create_host_config

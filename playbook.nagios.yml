@@ -11,3 +11,4 @@
     - nagios-plugins
     - nrpe
     - configure-nagios
+    - add-host
