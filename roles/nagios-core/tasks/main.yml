@@ -1,11 +1,12 @@
 ---
+### This tasks file downloads Nagios source code, configures, compiles and installs it on this monitoring server
 - name: Download the source code for a release of Nagios Core and extract it
-  unarchive: src=https://assets.nagios.com/downloads/nagioscore/releases/nagios-{{ nagios_version }}.tar.gz dest={{ ansible_env.PWD }} copy=no
+  unarchive: src={{ nagios_dwld_url }} dest={{ ansible_env.PWD }} copy=no
   tags:
     - dwld_nagios
 
 - name: Configure Nagios
-  command: ./configure --with-nagios-group={{ user }} --with-command-group={{ group }}
+  command: ./configure --with-nagios-group={{ nagios_group }} --with-command-group={{ nagcmd_group }}
   args:
     chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
   tags:
@@ -33,7 +34,7 @@
     - nagios_init
 
 - name:  Add the web server user to the group
-  command: usermod -G {{ group }} www-data
+  command: usermod -G {{ nagcmd_group }} www-data
   args:
     chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
   tags:

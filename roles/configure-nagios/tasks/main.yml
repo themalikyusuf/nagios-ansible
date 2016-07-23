@@ -1,11 +1,12 @@
 ---
+### This task file creates admin username and passwd, creates a dir to store config files for each remote hosts
 - name: Uncomment Nagios server config directory line
   lineinfile: 
     dest: /usr/local/nagios/etc/nagios.cfg 
-    regexp: "^cfg_dir=/usr/local/nagios/etc/servers" 
-    insertafter: "^#cfg_dir=/usr/local/nagios/etc/servers" 
-    line: "cfg_dir=/usr/local/nagios/etc/servers" 
     state: present
+    regexp: "^#cfg_dir=/usr/local/nagios/etc/servers$"
+    line: "cfg_dir=/usr/local/nagios/etc/servers" 
+    backrefs: yes
   tags:
     - uncomment
 
@@ -32,7 +33,7 @@
     - add_command
 
 - name: Enable the Apache Rewrite and CGI modules
-  shell: "{{ item }}"
+  command: "{{ item }}"
   with_items:
     - a2enmod rewrite
     - a2enmod cgi
@@ -54,10 +55,12 @@
     - { src: '/etc/apache2/sites-available/nagios.conf', dest: '/etc/apache2/sites-enabled/nagios.conf' }
     - { src: '/etc/init.d/nagios', dest: '/etc/rcS.d/S99nagios' }
   tags:
-    - symlink
+    - symlink_services
 
 - name: Restart all services
   service: name={{ item }} state=restarted
   with_items:
     - nagios
     - apache2
+  tags:
+    - symlink_services

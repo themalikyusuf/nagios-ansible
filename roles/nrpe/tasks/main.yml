@@ -1,11 +1,12 @@
 ---
+### This playbook downloads Nagios Remote Plugin Executor, configures and compiles it and modifies xinetd to allow our IP
 - name: Download the source code for a release of NRPE and extract it
-  unarchive: src=http://downloads.sourceforge.net/project/nagios/nrpe-2.x/nrpe-{{ nrpe_version }}/nrpe-{{ nrpe_version }}.tar.gz dest={{ ansible_env.PWD }} copy=no
+  unarchive: src={{ nrpe_dwld_url }} dest={{ ansible_env.PWD }} copy=no
   tags:
     - dwld_nrpe
 
 - name: Configure NRPE
-  command: ./configure --enable-command-args --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
+  command: ./configure --enable-command-args --with-nagios-user={{ user }} --with-nagios-group={{ nagios_group }} --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
   args:
     chdir: "{{ ansible_env.PWD }}/nrpe-{{ nrpe_version }}"
   tags:
@@ -25,12 +26,15 @@
 
 - name: Modify extended Internet daemon to allow our IP
   lineinfile: 
-    dest: /etc/xinetd.d/nrpe 
-    regexp: "^only_from*" 
-    line: "only_from = 127.0.0.1 {{ vm_ip }}" 
-    state: absent
+    dest: /etc/xinetd.d/nrpe
+    state: present
+    regexp: "^only_from(.*)$" 
+    line: "only_from = 127.0.0.1 {{ vm_ip }}"
+    backrefs: yes
   tags:
     - xinetd
 
 - name: Restart xinetd
   service: name=xinetd state=restarted
+  tags:
+    - xinetd

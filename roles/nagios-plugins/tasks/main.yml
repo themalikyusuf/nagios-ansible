@@ -1,11 +1,12 @@
 ---
+### This task file downloads Nagios-plugins, configures and compiles it
 - name: Download the source code for a release of Nagios-plugins and extract it
-  unarchive: src=http://nagios-plugins.org/download/nagios-plugins-{{ plugin_version }}.tar.gz dest={{ ansible_env.PWD }} copy=no
+  unarchive: src={{ plugin_dwld_url }} dest={{ ansible_env.PWD }} copy=no
   tags:
     - dwld_nagios_plugin
 
 - name: Configure Nagios-plugins
-  command: ./configure --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-openssl
+  command: ./configure --with-nagios-user={{ user }} --with-nagios-group={{ nagios_group }} --with-openssl
   args:
     chdir: "{{ ansible_env.PWD }}/nagios-plugins-{{ plugin_version }}"
   tags:
