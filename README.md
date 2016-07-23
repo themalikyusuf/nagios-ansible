@@ -1,6 +1,6 @@
 # NAGIOS-ANSIBLE
 - This Ansible playbook installs Nagios Core monitoring tool on an Ubuntu 14.04.4 LTS Virtual Machine (VM) which is intended to serve as a **Monitoring Server.** 
-- It also installs Nagios Remote Plugin Executor (NRPE) which allows you to monitor any remote Linux/Unix services or network devices.
+- It also installs Nagios Remote Plugin Executor (NRPE) which allows you to add and remotely monitor any Linux/Unix services or network devices.
 
 **Note**:
 If you will like to add a new host to the Monitoring server, so that it will be monitored, there is another [repository](https://github.com/andela-ayusuf/nagios-ansible-remote) that helps with with that.
