@@ -1,4 +1,8 @@
-*.retry
-vars/
+*retry
+vars/vars0.yml
+features/step_definitions/vars0.rb
 .DS_Store
+*.gem
+*.rbc
+*.pem
 Gemfile.lock
