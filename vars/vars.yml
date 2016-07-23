@@ -1,0 +1,17 @@
+user: NAGIOS_USER
+nagcmd_group: NAGIOS_COMMAND_GROUP
+nagios_group: NAGIOS_GROUP
+vm_user: VM_USER
+vm_ip: VM_PUBLIC_IP
+nagios_version: NAGIOS_VERSION
+nagios_dwld_url: NAGIOS_DOWNLOAD_URL
+plugin_version: NAGIOS_PLUGINS_VERSION
+plugin_dwld_url: NAGIOS_PLUGINS_URL
+nrpe_version: NRPE_VERSION
+nrpe_dwld_url: NRPE_DOWNLOAD_URL
+user_email: YOUR_EMAIL
+username: ADMIN_USERNAME
+password: ADMIN_PASSWORD
+remote_host_name: REMOTE_VM_NAME
+remote_host_ip: REMOTE_VM_IP
+alias: REMOTE_VM_ALIAS
