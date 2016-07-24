@@ -33,6 +33,11 @@ Run the playbook:
 ```
 $ ansible-playbook playbook.nagios.yml -i inventory.ini --private-key=path/to/private/key
 ```
+OR
+```
+$ cucumber features/install.feature
+```
+
 With that done you have a Nagios Core monitoring tool configured on your VM.
 
 **Issues**
