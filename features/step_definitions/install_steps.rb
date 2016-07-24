@@ -30,22 +30,15 @@ When(/^I Download Nagios source code$/) do
   output, error, @status = Open3.capture3 "#{cmd}"
 end
 
-And(/^the source code should be extracted$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'ls | grep 'nagios-4.1.1''"
-  output, error, status = Open3.capture3 "#{cmd}"
-  expect(status.success?).to eq(true)
-  expect(output).to eq("nagios-4.1.1\n")
-end
-
 # Scenario: Configure Nagios
 When(/^I Configure Nagios source code$/) do
   cmd = "ansible-playbook -i inventory.ini --private-key=#{PATHTOKEY} playbook.nagios.yml --tags 'cfg_nagios'"
   output, error, @status = Open3.capture3 "#{cmd}"
 end
 
-# Scenario: Install Nagios and init scripts
-When(/^I Install Nagios and init scripts$/) do
-  cmd = "ansible-playbook -i inventory.ini --private-key=#{PATHTOKEY} playbook.nagios.yml --tags 'nagios_init'"
+# Scenario: Add the web server user
+When(/^I add the web server user$/) do
+  cmd = "ansible-playbook -i inventory.ini --private-key=#{PATHTOKEY} playbook.nagios.yml --tags 'web_user'"
   output, error, @status = Open3.capture3 "#{cmd}"
 end
 
@@ -62,13 +55,6 @@ When(/^I Download Nagios Plugin source code$/) do
   output, error, @status = Open3.capture3 "#{cmd}"
 end
 
-And(/^the Nagios Plugin source code should be extracted$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'ls | grep 'nagios-plugins-2.1.1''"
-  output, error, status = Open3.capture3 "#{cmd}"
-  expect(status.success?).to eq(true)
-  expect(output).to eq("nagios-plugins-2.1.1\n")
-end
-
 # Scenario: Configure Nagios Plugin
 When(/^I Configure Nagios Plugin source code$/) do
   cmd = "ansible-playbook -i inventory.ini --private-key=#{PATHTOKEY} playbook.nagios.yml --tags 'cfg_nagios_plugin'"
@@ -79,13 +65,6 @@ end
 When(/^I Download NRPE source code$/) do
   cmd = "ansible-playbook -i inventory.ini --private-key=#{PATHTOKEY} playbook.nagios.yml --tags 'dwld_nrpe'"
   output, error, @status = Open3.capture3 "#{cmd}"
-end
-
-And(/^the NRPE source code should be extracted$/) do
-  cmd = "ssh -i '#{PATHTOKEY}' #{PUBDNS} 'ls | grep 'nrpe-2.15''"
-  output, error, status = Open3.capture3 "#{cmd}"
-  expect(status.success?).to eq(true)
-  expect(output).to eq("nrpe-2.15\n")
 end
 
 # Scenario: Configure NRPE

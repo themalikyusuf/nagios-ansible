@@ -12,21 +12,19 @@ Feature: Configure Nagios
   Scenario: Download Nagios
     When I Download Nagios source code
     Then it should be successful
-    And the source code should be extracted
 
   Scenario: Configure Nagios
     When I Configure Nagios source code
     Then it should be successful
 
-  Scenario: Install Nagios and init scripts
-    When I Install Nagios and init scripts
+  Scenario: Add the web server user
+    When I add the web server user
     Then it should be successful
     And the web server user should exists
 
   Scenario: Download Nagios Plugin
     When I Download Nagios Plugin source code
     Then it should be successful
-    And the Nagios Plugin source code should be extracted
 
   Scenario: Configure Nagios Plugin
     When I Configure Nagios Plugin source code
@@ -35,7 +33,6 @@ Feature: Configure Nagios
   Scenario: Download NRPE
     When I Download NRPE source code
     Then it should be successful
-    And the NRPE source code should be extracted
 
   Scenario: Configure NRPE
     When I Configure NRPE source code
