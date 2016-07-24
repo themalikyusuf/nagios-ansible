@@ -1,21 +1,24 @@
 ---
 ### This tasks file downloads Nagios source code, configures, compiles and installs it on this monitoring server
 - name: Download the source code for a release of Nagios Core and extract it
-  unarchive: src={{ nagios_dwld_url }} dest={{ ansible_env.PWD }} copy=no
+  unarchive:
+    src: "{{ nagios_dwld_url }}"
+    dest: "/home/{{ vm_user }}"
+    copy: no
   tags:
     - dwld_nagios
 
 - name: Configure Nagios
   command: ./configure --with-nagios-group={{ nagios_group }} --with-command-group={{ nagcmd_group }}
   args:
-    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
+    chdir: "/home/{{ vm_user }}/nagios-{{ nagios_version }}"
   tags:
     - cfg_nagios
 
 - name: Compile Nagios
   command: "{{ item }}"
   args:
-    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
+    chdir: "/home/{{ vm_user }}/nagios-{{ nagios_version }}"
   with_items:
     - make clean
     - make all
@@ -23,19 +26,11 @@
     - make install-commandmode
     - make install-init
     - make install-config
+    - /usr/bin/install -c -m 644 sample-config/httpd.conf /etc/apache2/sites-available/nagios.conf
   tags:
    - cfg_nagios
 
-- name:  Install Nagios and init scripts
-  command: /usr/bin/install -c -m 644 sample-config/httpd.conf /etc/apache2/sites-available/nagios.conf
-  args:
-    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
-  tags:
-    - nagios_init
-
 - name:  Add the web server user to the group
-  command: usermod -G {{ nagcmd_group }} www-data
-  args:
-    chdir: "{{ ansible_env.PWD }}/nagios-{{ nagios_version }}"
+  user: name=www-data group="{{ nagcmd_group }}"
   tags:
-    - nagios_init
+    - web_user

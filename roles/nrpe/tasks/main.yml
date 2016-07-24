@@ -1,21 +1,24 @@
 ---
 ### This playbook downloads Nagios Remote Plugin Executor, configures and compiles it and modifies xinetd to allow our IP
 - name: Download the source code for a release of NRPE and extract it
-  unarchive: src={{ nrpe_dwld_url }} dest={{ ansible_env.PWD }} copy=no
+  unarchive:
+    src: "{{ nrpe_dwld_url }}"
+    dest: "/home/{{ vm_user }}"
+    copy: no
   tags:
     - dwld_nrpe
 
 - name: Configure NRPE
   command: ./configure --enable-command-args --with-nagios-user={{ user }} --with-nagios-group={{ nagios_group }} --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
   args:
-    chdir: "{{ ansible_env.PWD }}/nrpe-{{ nrpe_version }}"
+    chdir: "/home/{{ vm_user }}/nrpe-{{ nrpe_version }}"
   tags:
     - cfg_nrpe
 
 - name: Compile NRPE
   command: "{{ item }}"
   args:
-    chdir: "{{ ansible_env.PWD }}/nrpe-{{ nrpe_version }}"
+    chdir: "/home/{{ vm_user }}/nrpe-{{ nrpe_version }}"
   with_items:
     - make all
     - make install
